@@ -10,14 +10,21 @@ opts
   .option('-d, --dir [directory]', 'specify a directory', '.')
   .parse(process.argv)
 
-console.log 'playing...'
+playlist = []
 walker = walk.walk opts.dir
 walker.on "file", (root, fileStats, next) ->
-    if (fileStats.name.match /mp3$/)
-        console.log "playing #{fileStats.name}"
-        player = new Player "#{root}/#{fileStats.name}"
-        player.play (err, player) ->
-            next()
-    else
-        next()
-console.log opts.dir
+    playlist.push "#{root}/#{fileStats.name}"
+    next()
+
+walker.on "end", ->
+    player = new Player playlist
+    player.play()
+    player.on 'playing', (item) ->
+        console.log "playing", item.src
+    player.on 'played', (item) ->
+        console.log this
+        player.next()
+
+    player.on 'error', (err) ->
+        console.log err
+
