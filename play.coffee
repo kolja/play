@@ -2,6 +2,7 @@
 
 opts = require 'commander'
 walk = require 'walk'
+Player = require 'player'
 fs = require 'fs'
 
 opts
@@ -12,6 +13,11 @@ opts
 console.log 'playing...'
 walker = walk.walk opts.dir
 walker.on "file", (root, fileStats, next) ->
-    console.log "playing #{fileStats.name}"
-    exec "afplay #{root}/#{fileStats.name}", next()
+    if (fileStats.name.match /mp3$/)
+        console.log "playing #{fileStats.name}"
+        player = new Player "#{root}/#{fileStats.name}"
+        player.play (err, player) ->
+            next()
+    else
+        next()
 console.log opts.dir
