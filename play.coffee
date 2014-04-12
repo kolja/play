@@ -29,6 +29,10 @@ class Playlist
         duration ?= 100
         setTimeout callback, duration
 
+    punch: ->
+        #currentTime = process.hrtime()[0]
+        #if @timeDiff then currentTime - @timeDiff else currentTime
+
     reset: ->
         fs.unlink "#{directory}/#{bookmarkFilename}", (err) -> throw err if err
 
@@ -36,7 +40,7 @@ class Playlist
         if not file = @next()
             @reset()
             return
-        fs.createReadStream(file)
+        fs.createReadStream(file, {'bufferSize': 4096})
             .pipe new lame.Decoder()
             .on 'format', (format) ->
                 @pipe new Speaker(format)
@@ -65,5 +69,6 @@ fs.readFile "#{directory}/#{bookmarkFilename}", "utf8", (err, data) ->
 
     walker.on "end", -> do playlist.play
 
-process.on 'SIGTERM', ->
+process.on 'SIGINT', ->
     console.log "exiting..."
+    process.exit()
