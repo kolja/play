@@ -27,7 +27,7 @@ class Playlist
 
     intermission: (callback, duration) ->
         duration ?= 100
-        setTimeout callback, 100
+        setTimeout callback, duration
 
     reset: ->
         fs.unlink "#{directory}/#{bookmarkFilename}", (err) -> throw err if err
@@ -48,7 +48,7 @@ class Playlist
 
 playlist = new Playlist
 
-fs.readFile directory, 'utf8', (err, data) ->
+fs.readFile "#{directory}/#{bookmarkFilename}", "utf8", (err, data) ->
 
     bookmark = if (err) then null else JSON.parse(data).bookmark
     walker = walk.walk directory
