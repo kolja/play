@@ -55,16 +55,15 @@ class Playlist
         if not file = @next()
             @reset()
             return
-        p = this
-        fs.createReadStream(file, {'bufferSize': 4096})
-            .pipe new lame.Decoder()
-            .on 'format', (format) ->
-                @pipe new Speaker(format)
-                console.log "playing", file
-                fs.writeFile "#{p.directory}/#{p.bookmarkFilename}", "{\"bookmark\":\"#{file}\"}", (err) ->
-                    if (err) then console.log err
-            .on 'end', =>
-                @intermission @play, 1000
+        stream = fs.createReadStream(file, {'bufferSize': 4096})
+        p = stream.pipe new lame.Decoder()
+        p.on 'format', (format) =>
+            p.pipe new Speaker(format)
+            console.log "playing", file
+            fs.writeFile "#{@directory}/#{@bookmarkFilename}", "{\"bookmark\":\"#{file}\"}", (err) ->
+                if (err) then console.log err
+        p.on 'end', =>
+            @intermission @play, 1000
 
 
 playlist = new Playlist process.argv[2]
