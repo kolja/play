@@ -65,8 +65,15 @@ class Playlist
         p.on 'end', =>
             @intermission @play, 1000
 
-
-playlist = new Playlist process.argv[2]
+directory = process.argv[2]
+if not directory
+    throw "please name a directory with some audio-files to play"
+else
+    try isDir = fs.lstatSync(directory)?.isDirectory()
+    if not isDir
+        console.log "#{directory} doesn't appear to be a directory"
+    else
+        playlist = new Playlist directory
 
 
 process.on 'SIGINT', ->
